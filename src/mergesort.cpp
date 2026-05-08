@@ -16,6 +16,7 @@ static void merge_sort_rec(std::vector<Solicitud>& a, int l, int r, std::vector<
     for (int t = l; t < r; ++t) a[t] = tmp[t];
 }
 
+
 void merge_sort_desc(std::vector<Solicitud>& a) {
     std::vector<Solicitud> tmp(a.size());
     merge_sort_rec(a, 0, (int)a.size(), tmp);

@@ -1,6 +1,74 @@
 #include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <chrono>
+#include <algorithm>
+#include "parser.hpp"
+#include "mergesort.hpp"
+#include "binary_search.hpp"
 
-int main() {
-    std::cout << "Proyecto: estructura creada\n";
+using namespace std::chrono;
+
+static void write_sorted_csv(const std::string& path, const std::vector<Solicitud>& a) {
+    std::ofstream f(path);
+    f << "customerID,tenure,MonthlyCharges,TotalCharges,Churn\n";
+    for (const auto& s : a) {
+        f << s.customerID << "," << s.tenure << "," << std::fixed << std::setprecision(2) << s.monthlyCharges << "," << s.totalCharges << "," << s.churn << "\n";
+    }
+}
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cout << "Uso: ./ada_pf data/WA_Fn-UseC_-Telco-Customer-Churn.csv\n";
+        return 1;
+    }
+    std::string path = argv[1];
+    std::vector<Solicitud> solicitudes;
+    int total_loaded = 0, total_nulls = 0;
+    if (!parse_csv(path, solicitudes, total_loaded, total_nulls)) {
+        std::cerr << "Error: no se pudo abrir el archivo '" << path << "'\n";
+        return 2;
+    }
+
+    std::cout << "Registros cargados: " << total_loaded << "\n";
+    std::cout << "Registros con TotalCharges nulo: " << total_nulls << "\n";
+
+    // Medir tiempos de MergeSort para tamaños 1000, 3500 y n (o menos si no hay suficientes registros)
+    std::vector<int> sizes = {1000, 3500, 7043};
+    std::ofstream timing_out("results/timing_mergesort.txt");
+    timing_out << "n,time_ms\n";
+    for (int s : sizes) {
+        int use = std::min((int)solicitudes.size(), s);
+        if (use == 0) continue;
+        std::vector<Solicitud> sample(solicitudes.begin(), solicitudes.begin() + use);
+        auto t0 = high_resolution_clock::now();
+        merge_sort_desc(sample);
+        auto t1 = high_resolution_clock::now();
+        double ms = duration<double, std::milli>(t1 - t0).count();
+        timing_out << use << "," << std::fixed << std::setprecision(2) << ms << "\n";
+    }
+    timing_out.close();
+
+    // Ordenar el vector completo y escribir solicitudes_ordenadas.csv
+    merge_sort_desc(solicitudes);
+    write_sorted_csv("results/solicitudes_ordenadas.csv", solicitudes);
+
+    // Ejecutar las 5 consultas fijas y escribir resultados
+    std::vector<std::pair<std::string,int>> queries = {{"Q_A01",72},{"Q_A02",60},{"Q_A03",45},{"Q_A04",30},{"Q_A05",12}};
+    std::ofstream qout("results/busquedas_A.txt");
+    for (auto &q : queries) {
+        int idx = binary_search_first_ge(solicitudes, q.second);
+        if (idx == -1) qout << q.first << "," << q.second << ",NOT_FOUND\n";
+        else qout << q.first << "," << q.second << "," << solicitudes[idx].customerID << "\n";
+    }
+    qout.close();
+
+    // Escribir stats simples en results/
+    std::ofstream out("results/solicitudes_cargadas_stats.txt");
+    out << "total_loaded=" << total_loaded << "\n";
+    out << "total_nulls=" << total_nulls << "\n";
+    out.close();
+
+    std::cout << "Ordenamiento y consultas completadas. Archivos escritos en results/.\n";
     return 0;
 }

@@ -6,7 +6,7 @@
 
 using Edge = std::tuple<int,int,int>;
 
-// Devuelve la lista de aristas del MST y escribe el costo total en `total_cost`.
+// devuelve aristas del MST y escribe el costo total 
 std::vector<Edge> kruskal_mst(int n, std::vector<Edge> edges, int& total_cost);
 
-#endif // KRUSKAL_HPP
+#endif 
