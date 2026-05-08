@@ -6,7 +6,7 @@ bool parse_csv(const std::string& path, std::vector<Solicitud>& out, int& total_
     std::ifstream f(path);
     if (!f.is_open()) return false;
     std::string line;
-    // Ignorar cabecera
+
     if (!std::getline(f, line)) return false;
 
     total_loaded = 0;
@@ -17,7 +17,7 @@ bool parse_csv(const std::string& path, std::vector<Solicitud>& out, int& total_
         std::string item;
         std::vector<std::string> fields;
         while (std::getline(ss, item, ',')) fields.push_back(item);
-        if (fields.size() < 5) continue; // seguridad; ajustar según CSV real
+        if (fields.size() < 5) continue; 
 
         Solicitud s;
         s.customerID = fields[0];

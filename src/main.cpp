@@ -6,6 +6,7 @@
 #include "parser.hpp"
 #include "mergesort.hpp"
 #include "binary_search.hpp"
+#include "graph.hpp"
 
 using namespace std::chrono;
 
@@ -15,6 +16,25 @@ static void write_sorted_csv(const std::string& path, const std::vector<Solicitu
     for (const auto& s : a) {
         f << s.customerID << "," << s.tenure << "," << std::fixed << std::setprecision(2) << s.monthlyCharges << "," << s.totalCharges << "," << s.churn << "\n";
     }
+}
+
+static void write_graph_stats(const std::string& path, const Graph& graph, const std::vector<double>& group_avg) {
+    std::ofstream out(path);
+    out << "nodos=" << graph.n << "\n";
+    out << "aristas=" << graph.edges.size() << "\n";
+
+    double total_cost = 0.0;
+    for (const auto& edge : graph.edges) {
+        total_cost += static_cast<double>(std::get<2>(edge));
+    }
+    double avg_cost = graph.edges.empty() ? 0.0 : total_cost / static_cast<double>(graph.edges.size());
+    out << "costo_promedio_arista=" << std::fixed << std::setprecision(2) << avg_cost << "\n";
+    out << "promedios_grupo=";
+    for (size_t i = 0; i < group_avg.size(); ++i) {
+        if (i) out << ";";
+        out << std::fixed << std::setprecision(2) << group_avg[i];
+    }
+    out << "\n";
 }
 
 int main(int argc, char** argv) {
@@ -33,7 +53,7 @@ int main(int argc, char** argv) {
     std::cout << "Registros cargados: " << total_loaded << "\n";
     std::cout << "Registros con TotalCharges nulo: " << total_nulls << "\n";
 
-    // Medir tiempos de MergeSort para tamaños 1000, 3500 y n (o menos si no hay suficientes registros)
+    // mergesort
     std::vector<int> sizes = {1000, 3500, 7043};
     std::ofstream timing_out("results/timing_mergesort.txt");
     timing_out << "n,time_ms\n";
@@ -49,11 +69,11 @@ int main(int argc, char** argv) {
     }
     timing_out.close();
 
-    // Ordenar el vector completo y escribir solicitudes_ordenadas.csv
+    // ordena vector
     merge_sort_desc(solicitudes);
     write_sorted_csv("results/solicitudes_ordenadas.csv", solicitudes);
 
-    // Ejecutar las 5 consultas fijas y escribir resultados
+    // consultas
     std::vector<std::pair<std::string,int>> queries = {{"Q_A01",72},{"Q_A02",60},{"Q_A03",45},{"Q_A04",30},{"Q_A05",12}};
     std::ofstream qout("results/busquedas_A.txt");
     for (auto &q : queries) {
@@ -63,7 +83,12 @@ int main(int argc, char** argv) {
     }
     qout.close();
 
-    // Escribir stats simples en results/
+    // construccion grafo
+    std::vector<double> group_avg = compute_group_monthly_avg(solicitudes, 20);
+    Graph graph = build_deterministic_graph(group_avg);
+    write_graph_stats("results/grafo_B_stats.txt", graph, group_avg);
+
+    // stats
     std::ofstream out("results/solicitudes_cargadas_stats.txt");
     out << "total_loaded=" << total_loaded << "\n";
     out << "total_nulls=" << total_nulls << "\n";

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <tuple>
+#include "parser.hpp"
 
 using Edge = std::tuple<int,int,int>; // u, v, cost
 
@@ -11,7 +12,10 @@ struct Graph {
     std::vector<Edge> edges;
 };
 
-// Construye grafo completo determinista a partir de los promedios mensuales por grupo.
+// calcula promedio de monthly charges
+std::vector<double> compute_group_monthly_avg(const std::vector<Solicitud>& solicitudes, int group_count = 20);
+
+// construye grafo
 Graph build_deterministic_graph(const std::vector<double>& groupMonthlyAvg);
 
-#endif // GRAPH_HPP
+#endif
