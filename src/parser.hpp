@@ -12,9 +12,9 @@ struct Solicitud {
     std::string churn;
 };
 
-// Parsea el CSV y llena `out`. Devuelve true si pudo abrir el archivo.
-// `total_loaded` recibe el número de registros leídos.
-// `total_nulls` recibe el número de registros con TotalCharges nulo (vacío).
+
+// total_loaded numero de registros leidos
+// total_nulls numero de registros con nulo
 bool parse_csv(const std::string& path, std::vector<Solicitud>& out, int& total_loaded, int& total_nulls);
 
 #endif // PARSER_HPP
