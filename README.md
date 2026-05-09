@@ -7,7 +7,7 @@ Universidad EAFIT
 
 ## Integrantes
 
-Juan Jose Diaz
+Juan Jose Diaz -
 Samuel Calderón
 
 ---
