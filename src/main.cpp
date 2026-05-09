@@ -7,6 +7,7 @@
 #include "mergesort.hpp"
 #include "binary_search.hpp"
 #include "graph.hpp"
+#include "kruskal.hpp"
 
 using namespace std::chrono;
 
@@ -87,6 +88,31 @@ int main(int argc, char** argv) {
     std::vector<double> group_avg = compute_group_monthly_avg(solicitudes, 20);
     Graph graph = build_deterministic_graph(group_avg);
     write_graph_stats("results/grafo_B_stats.txt", graph, group_avg);
+
+    // mst kruskal
+    int total_mst_cost = 0;
+    std::vector<Edge> mst = kruskal_mst(graph.n, graph.edges, total_mst_cost);
+    std::ofstream mout("results/mst_red.txt");
+    mout << "peso_total=" << total_mst_cost << "\n";
+    mout << "aristas(u,v,cost)\n";
+    for (const auto &e : mst) {
+        mout << std::get<0>(e) << "," << std::get<1>(e) << "," << std::get<2>(e) << "\n";
+    }
+
+    // verificar
+    std::vector<Edge> subedges;
+    for (const auto &e : graph.edges) {
+        int u = std::get<0>(e), v = std::get<1>(e), w = std::get<2>(e);
+        if (u < 5 && v < 5) subedges.emplace_back(u, v, w);
+    }
+    int total_sub_cost = 0;
+    std::vector<Edge> mst_sub = kruskal_mst(5, subedges, total_sub_cost);
+    mout << "subgrafo_0_4_peso=" << total_sub_cost << "\n";
+    mout << "subgrafo_aristas(u,v,cost)\n";
+    for (const auto &e : mst_sub) {
+        mout << std::get<0>(e) << "," << std::get<1>(e) << "," << std::get<2>(e) << "\n";
+    }
+    mout.close();
 
     // stats
     std::ofstream out("results/solicitudes_cargadas_stats.txt");
