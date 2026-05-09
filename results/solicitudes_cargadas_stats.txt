@@ -1,2 +1,2 @@
-total_loaded=3
-total_nulls=1
+total_loaded=7043
+total_nulls=11

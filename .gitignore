@@ -1,0 +1,5 @@
+ada_pf
+ada_pf.exe
+*.o
+*.out
+report/*.pdf

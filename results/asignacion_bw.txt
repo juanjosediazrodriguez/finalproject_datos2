@@ -1,0 +1,35 @@
+=== MÓDULO C: Asignación de ancho de banda (Mochila 0-1) ===
+
+Capacidad W=5000 unidades
+Solicitudes candidatas (top-50 activas por tenure): 50
+
+--- Solución Óptima (Programación Dinámica) ---
+Valor óptimo total: 707 centavos
+Solicitudes seleccionadas: 2
+Ancho de banda usado: 4851 / 5000
+customerIDs incluidos:
+  9286-BHDQG (w=3140, v=453)
+  4312-KFRXN (w=1711, v=254)
+
+--- Contraejemplo: fallo del enfoque codicioso ---
+Capacidad del contraejemplo: 14223
+
+Ítems del contraejemplo:
+  5248-YGIJN  w=6369  v=903  ratio=0.1418
+  6234-RAAPL  w=7252  v=999  ratio=0.1378
+  5954-BDFSG  w=7854  v=1075  ratio=0.1369
+
++------------------------+---------------------------+-------------+----------+
+| Enfoque                | Solicitudes seleccionadas | Valor total | Optimo?  |
++------------------------+---------------------------+-------------+----------+
+| Codicioso (ratio v/w)  | 5248-YGIJN 6234-RAAPL     | 1902        | No       |
+| PD (Mochila 0-1)       | 5248-YGIJN 5954-BDFSG     | 1978        | Si       |
++------------------------+---------------------------+-------------+----------+
+
+--- Analisis de complejidad ---
+Tiempo: Theta(n * W) = Theta(50 * 5000) = Theta(250,000) operaciones.
+Espacio: Theta(n * W) para la tabla dp[0..n][0..W] = 51 x 5001 enteros.
+Pseudopolinomialidad: W aparece como valor numerico, no como longitud
+de su representacion binaria (log W bits). Si W creciera exponencialmente,
+el algoritmo dejaria de ser polinomial en la longitud de la entrada.
+Por esto se clasifica como pseudopolinomial, no polinomial estricto.
